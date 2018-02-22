@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css">
+<!-- Load the Paper.js library -->
+<script type="text/javascript" src="js/lib/paper.js"></script>
+<!-- Define inlined PaperScript associate it with myCanvas -->
+<script type="text/paperscript" canvas="myCanvas">
+	// Create a Paper.js Path to draw a line into it:
+	
+	var path = new Path();
+	var x = 10;
+	var y = 70;
+	var voyager;
+	var voyagerX = 200;
+	var voyagerY = 200;
+	var voyagerRot = 90;
+	var lazer1 = new Path.Rectangle(0, 0, 0);
+	var lazer2 = new Path.Rectangle(0, 0, 0);
+	var audio = new Audio('lazer.wav');
+	var timer = 0;
+
+
+	function drawStar() {
+	var myStar = new Path.Circle(new Point(x, y), 5);
+	myStar.strokeColor = 'black';
+	myStar.fillColor = 'yellow'
+
+	}
+
+	function onKeyDown(event){
+		if (event.key == 'q') {
+			voyager.rotate(-10);
+		} else if (event.key == 'e') {
+			voyager.rotate(10);
+		} else if (event.key == 'd') {
+			hideVoyager()
+			voyagerX += 10;
+			voyagerRot = 90;
+			drawVoyager()
+		} else if (event.key == 's') {
+			hideVoyager()
+			voyagerY += 10;
+			voyagerRot = 180;
+			drawVoyager()
+		} else if (event.key == 'a') {
+			hideVoyager()
+			voyagerX -= 10;
+			voyagerRot = -90;
+			drawVoyager()
+		} else if (event.key == 'w') {
+			hideVoyager()
+			voyagerY -= 10;
+			voyagerRot = 0;
+			drawVoyager()
+		} else if (event.key == 'z') {
+			
+			drawLazer();
+
+		}
+	}
+
+	function rotate(event){
+
+	}
+
+	function drawVoyager(){
+
+		voyager = new Raster('voyager');
+		voyager.position.x = voyagerX
+		voyager.position.y = voyagerY
+		voyager.rotation = voyagerRot;
+
+	}
+
+	function hideVoyager(){
+		voyager.opacity = 0;
+	}
+
+	function timerCounter()
+	{
+		timer += 1
+		if (timer >= 60)
+		{
+			
+		console.log("60 frames passed")
+		timer = 0;
+		hideLazer();
+		}
+	}
+	
+	function onFrame(event) {
+	
+	if (voyagerRot == 90) {
+		lazer1.position.x += 100;
+		lazer2.position.x += 100;
+	} else if (voyagerRot == 0) {
+		lazer1.position.y -= 100;
+		lazer2.position.y -= 100;
+	} else if (voyagerRot == -90) {
+		lazer1.position.x -= 100;
+		lazer2.position.x -= 100;
+	} else if (voyagerRot == 180) {
+		lazer1.position.y += 100;
+		lazer2.position.y += 100;
+	}
+
+	timerCounter();
+
+	//console.log(voyagerRot);
+	}
+
+
+	drawVoyager();
+
+	function drawLazer(){
+		
+		if (voyagerRot == 90 || voyagerRot == -90) {
+
+			lazer1 = Path.Rectangle(new Point(voyager.position.x, voyager.position.y + -35), 50, 10);
+			lazer1.fillColor = 'green';
+
+			lazer2 = new Path.Rectangle(new Point(voyager.position.x, voyager.position.y + 35), 50, 10);
+			lazer2.fillColor = 'green';
+			}
+		else {
+			lazer1 = Path.Rectangle(new Point(voyager.position.x + 20, voyager.position.y), 10, 50);
+			lazer1.fillColor = 'green';
+
+			lazer2 = new Path.Rectangle(new Point(voyager.position.x - 35, voyager.position.y), 10, 50);
+			lazer2.fillColor = 'green';
+		}
+		audio.play();
+	}
+
+	function hideLazer(){
+		if (lazer1.position.x > 1000 || lazer1.position.x < -1000 || lazer1.position.y > 1000 || lazer1.position.y < -1000)
+		{
+
+		lazer1.opacity = 0;
+ 		lazer2.opacity = 0;
+		}
+ 		
+	}
+
+	//DRAW STARS
+	for (var y = 0; y <=1000; y+=150) {
+		for (var x = 0; x <=1000; x+=150) {
+		drawStar();
+		}
+	}
+
+	
+</script>
+</head>
+<body>
+	<canvas id="myCanvas" resize></canvas>
+	<img id="voyager" src="voyager.png">
+</body>
+</html>

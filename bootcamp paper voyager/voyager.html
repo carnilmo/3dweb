@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+		body, html {
+		height: 100%;
+		margin: 0;
+	}
+
+	canvas {
+		width: 100%;
+		height: 100%;
+		background: black;
+	}
+</style>
+<!-- Load the Paper.js library -->
+<script type="text/javascript" src="paper.js"></script>
+<!-- Define inlined PaperScript associate it with myCanvas -->
+<script type="text/paperscript" canvas="myCanvas">
+	// Create a Paper.js Path to draw a line into it:
+	
+	var path = new Path();
+
+	var voyager;
+	var voyagerX = 200;
+	var voyagerY = 200;
+	var voyagerRot = 90;
+	var lazer1 = new Path.Rectangle(0, 0, 0);
+	var lazer2 = new Path.Rectangle(0, 0, 0);
+	var audio = new Audio('lazer.wav');
+	var timer = 0;
+	var count = 60;
+	var ball = new Path.Circle({
+		center: [0, 0],
+		radius: 10,
+		fillColor: 'white',
+		strokeColor: 'black'
+	});
+	var symbol = new Symbol(ball);
+	
+	var cube = new Path.Rectangle(0, 0, 0);
+
+
+
+	init();
+
+	function init(){
+		drawStars()
+		drawVoyager();
+		drawCube();
+	}
+
+	function onMouseDown(event) {
+		drawLazer();
+	}
+
+	function onMouseMove(event) {
+		
+		if(voyager.position.x > 50 && voyager.position.x < 300){
+			voyager.position.y = event.point.y;
+		}
+	}
+
+	function onKeyDown(event){
+		if (event.key == 'q') {
+			voyager.rotate(-10);
+		} else if (event.key == 'e') {
+			voyager.rotate(10);
+		} else if (event.key == 's') {
+			hideVoyager()
+			voyagerY += 10;
+			drawVoyager()
+		} else if (event.key == 'w') {
+			hideVoyager()
+			voyagerY -= 10;
+			drawVoyager()
+		} else if (event.key == 'z') {
+			drawLazer();
+		}
+	}
+
+	function drawVoyager(){
+
+		voyager = new Raster('voyager');
+		voyager.position.x = voyagerX
+		voyager.position.y = voyagerY
+		voyager.rotation = voyagerRot;
+	}
+
+	function hideVoyager(){
+		voyager.opacity = 0;
+	}
+
+	function timerCounter()
+	{
+		timer += 1
+		if (timer >= 60)
+		{
+			
+		console.log("60 frames passed")
+		timer = 0;
+		hideLazer();
+		}
+	}
+	
+	function onFrame(event) {
+	
+		lazer1.position.x += 150;
+		lazer2.position.x += 150;
+
+		timerCounter();
+
+		for (var i = 0; i < count; i++) {
+			var item = project.activeLayer.children[i];
+			item.position.x += item.bounds.width / 20;
+			if (item.bounds.left > view.size.width) {
+				item.position.x = -item.bounds.width;
+			}
+		}
+
+		//console.log("laser x is " + lazer1.position.x);
+		
+		
+		if (lazer1.position.x > cube.position.x && lazer1.position.y < cube.position.y + 50 && lazer1.position.y > cube.position.y - 130) {
+			
+			destroy();
+		}
+		cube.rotation =+ 1;
+	}
+
+
+
+
+
+	function drawLazer(){
+		
+		if (voyagerRot == 90 || voyagerRot == -90) {
+			lazer1 = Path.Rectangle(new Point(voyager.position.x, voyager.position.y + -35), 50, 10);
+			lazer1.fillColor = 'green';
+			lazer2 = new Path.Rectangle(new Point(voyager.position.x, voyager.position.y + 35), 50, 10);
+			lazer2.fillColor = 'green';
+			}
+		else {
+			lazer1 = Path.Rectangle(new Point(voyager.position.x + 20, voyager.position.y), 10, 50);
+			lazer1.fillColor = 'green';
+
+			lazer2 = new Path.Rectangle(new Point(voyager.position.x - 35, voyager.position.y), 10, 50);
+			lazer2.fillColor = 'green';
+		}
+		audio.play();
+	}
+
+	function hideLazer(){
+		if (lazer1.position.x > 1000 || lazer1.position.x < -1000 || lazer1.position.y > 1000 || lazer1.position.y < -1000)
+		{
+
+		lazer1.opacity = 0;
+ 		lazer2.opacity = 0;
+		}
+ 		
+	}
+
+	function drawCube(){
+		cube = Path.Rectangle(new Point(1200, 200), 100, 100);
+		cube.fillColor = '#006400';
+
+	}
+
+	function destroy(){
+		cube.opacity = 0;
+	}
+
+	function drawStars(){
+		for (var i = 0; i < count; i++) {
+			var center = Point.random() * view.size;
+			var placedSymbol = symbol.place(center);
+			placedSymbol.scale(i / count);
+		}
+	}
+
+	
+</script>
+</head>
+<body>
+	<canvas id="myCanvas" resize></canvas>
+	<img id="voyager" src="voyager.png">
+</body>
+</html>
