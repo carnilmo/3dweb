@@ -12,6 +12,7 @@
 		height: 100%;
 		background: black;
 	}
+
 </style>
 <!-- Load the Paper.js library -->
 <script type="text/javascript" src="paper.js"></script>
@@ -27,7 +28,9 @@
 	var voyagerRot = 90;
 	var lazer1 = new Path.Rectangle(0, 0, 0);
 	var lazer2 = new Path.Rectangle(0, 0, 0);
-	var audio = new Audio('lazer.wav');
+	var audioLazer = new Audio('lazer.wav');
+	var audioJeb = new Audio('yeb.wav');
+	var audioDestroy = new Audio('destroy.wav');
 	var timer = 0;
 	var count = 60;
 	var ball = new Path.Circle({
@@ -37,8 +40,8 @@
 		strokeColor: 'black'
 	});
 	var symbol = new Symbol(ball);
-	
-	var cube = new Path.Rectangle(0, 0, 0);
+	var cube = new Path.Rectangle();
+	var debris = {};
 
 
 
@@ -54,6 +57,7 @@
 		drawLazer();
 	}
 
+	
 	function onMouseMove(event) {
 		
 		if(voyager.position.x > 50 && voyager.position.x < 300){
@@ -75,7 +79,7 @@
 			voyagerY -= 10;
 			drawVoyager()
 		} else if (event.key == 'z') {
-			drawLazer();
+			audioJeb.play();
 		}
 	}
 
@@ -96,7 +100,6 @@
 		timer += 1
 		if (timer >= 60)
 		{
-			
 		console.log("60 frames passed")
 		timer = 0;
 		hideLazer();
@@ -118,19 +121,22 @@
 			}
 		}
 
-		//console.log("laser x is " + lazer1.position.x);
-		
-		
-		if (lazer1.position.x > cube.position.x && lazer1.position.y < cube.position.y + 50 && lazer1.position.y > cube.position.y - 130) {
-			
+		//if (lazer1.position.x > cube.position.x && lazer1.position.y < cube.position.y + 50 && lazer1.position.y > cube.position.y - 130) {
+		if (cube.isAlive = true && (cube.intersects(lazer1) || cube.intersects(lazer2))) {
 			destroy();
 		}
+		
+		if (debris.opacity > 0){
+			debris.size += 10;
+			debris.opacity = debris.opacity - 0.02;
+		} else {
+			debris.size = 0;
+			cube.isAlive = false;
+		}
+		//console.log("debris opacity is " + debris.opacity);
 		cube.rotation =+ 1;
+
 	}
-
-
-
-
 
 	function drawLazer(){
 		
@@ -147,7 +153,7 @@
 			lazer2 = new Path.Rectangle(new Point(voyager.position.x - 35, voyager.position.y), 10, 50);
 			lazer2.fillColor = 'green';
 		}
-		audio.play();
+		audioLazer.play();
 	}
 
 	function hideLazer(){
@@ -156,6 +162,7 @@
 
 		lazer1.opacity = 0;
  		lazer2.opacity = 0;
+
 		}
  		
 	}
@@ -163,11 +170,23 @@
 	function drawCube(){
 		cube = Path.Rectangle(new Point(1200, 200), 100, 100);
 		cube.fillColor = '#006400';
+		cube.isAlive = true;
+
+	}
+
+	function drawDebris(){
+		if (cube.isAlive = true) {
+			debris = new Raster('debris');
+			debris.position = cube.position;
+		}
 
 	}
 
 	function destroy(){
 		cube.opacity = 0;
+		drawDebris();
+		audioDestroy.play();
+		//cube.isAlive = false;
 	}
 
 	function drawStars(){
@@ -183,6 +202,7 @@
 </head>
 <body>
 	<canvas id="myCanvas" resize></canvas>
-	<img id="voyager" src="voyager.png">
+	<img hidden id="voyager" src="voyager.png">
+	<img hidden id="debris" src="debris.png">
 </body>
 </html>
