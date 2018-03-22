@@ -4,6 +4,7 @@ var ground, character;
 var mesh;
 var material;
 var light;
+var lightPoint;
 var textureLoader = new THREE.TextureLoader();
 var loader = new THREE.JSONLoader();
 var isLoaded = false;
@@ -33,16 +34,32 @@ function init () {
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.target = new THREE.Vector3(0, 0.6, 0);
   // Lights
-  light = new THREE.AmbientLight(0xffffff, 3);
+  light = new THREE.AmbientLight(0xffffff, 1.5);
   scene.add(light);
+
+  var directionalLight = new THREE.DirectionalLight( 0xeeeeee );
+        directionalLight.position.set( 3, 1, - 1 );
+        directionalLight.position.normalize();
+        scene.add( directionalLight );
+
+  // loader.load('./models/draft.json', function (geometry, materials) {
+  //   materials.forEach(function (material) {
+  //     material.skinning = true;
+  //   });
+  //   mesh = new THREE.SkinnedMesh(
+  //     geometry,
+  //     new THREE.MeshFaceMaterial(materials)
+  //   );
+
 
 
   loader.load( './models/draft.json', function ( geometry, materials ) {
       //mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
       mixer = new THREE.AnimationMixer(mesh);
 
-      //material = new THREE.MeshFaceMaterial(materials);
-      material = new THREE.MeshNormalMaterial();
+      material = new THREE.MeshFaceMaterial(materials);
+      //material = new THREE.MeshNormalMaterial();
+      //material = new THREE.MeshLambertMaterial();
       mesh = new THREE.Mesh(geometry, material);
 
       scene.add( mesh );
